@@ -26,9 +26,34 @@ data["RSI"] = abstract.RSI(data, timeperiod=14, price='Close')
 returned_macd = abstract.MACDFIX(data, price='Close')
 data["MACD"] = returned_macd["macd"]
 data["MACDSignal"] = returned_macd["macdsignal"]
-data["MACDHist"] = returned_macd["macdhist"] 
+data["MACDHist"] = returned_macd["macdhist"]
+
+# Bollinger Bands (organized as lower, upper, middle)
+returned_bands = abstract.BBANDS(data, price='Close')
+bands = []
+for i in range(len(returned_bands)):
+	bands.append([
+		returned_bands["lowerband"][i], 
+		returned_bands["middleband"][i], 
+		returned_bands["upperband"][i]
+	])
+data["BBANDS"] = bands
+
+# Pivot Point + Support and Resistance (organized from lowest level to highest level)
+data["Pivot"] = (data["High"] + data["Low"] + data["Close"])/3
+support, resistance = [], []
+for i in range(len(data)):
+	support.append([
+		2*data["Pivot"] - data["High"],
+		data["Pivot"] - (data["High"] - data["Low"]),
+		data["Low"] - 2*(data["High"] - data["Pivot"])
+	])
+	resistance.append([
+		2*data["Pivot"] - data["Low"],
+		data["Pivot"] + (data["High"] - data["Low"]),
+		data["High"] + 2*(data["Pivot"] - data["Low"])
+	])
+
+data["Support"], data["Resistance"] = support, resistance
 
 data = data[199:]
-
-# plt.plot(data.index, data["Close"]) -> plots historical closing data
-# plt.show() -> shows plot

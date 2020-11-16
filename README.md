@@ -7,3 +7,9 @@ git clone https://github.com/dhruvashok/aitrading.git
 ```
 From there, you can add and commit files, and push them as necessary. 
 Make sure to discuss what files you have edited to ensure that we don't have any major merge problems.
+## IMPORTANT! - Install Dependencies
+Follow the instructions for the OS you're using in the README [here](https://github.com/mrjbq7/ta-lib/).
+Make sure to run the following after you've done that
+```bash
+pip install talib
+```
