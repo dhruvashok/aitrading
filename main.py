@@ -30,14 +30,9 @@ data["MACDHist"] = returned_macd["macdhist"]
 
 # Bollinger Bands (organized as lower, upper, middle)
 returned_bands = abstract.BBANDS(data, price='Close')
-bands = []
-for i in range(len(returned_bands)):
-	bands.append([
-		returned_bands["lowerband"][i], 
-		returned_bands["middleband"][i], 
-		returned_bands["upperband"][i]
-	])
-data["BBANDS"] = bands
+data["LOWERBAND"] = returned_bands["lowerband"]
+data["MIDDLEBAND"] = returned_bands["middleband"]
+data["UPPERBAND"] = returned_bands["upperband"]
 
 # Pivot Point + Support and Resistance (organized from lowest level to highest level)
 data["Pivot"] = (data["High"] + data["Low"] + data["Close"])/3
