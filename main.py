@@ -3,52 +3,65 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from talib import abstract
 
-ticker = "AMZN"
-# period param = period you want + 200d
-data = yf.Ticker(ticker).history(period="452d").dropna()
+def get_data(ticker):
 
-# SMA
-data["SMA10"] = data["Close"].rolling(10).mean()
-data["SMA20"] = data["Close"].rolling(20).mean()
-data["SMA50"] = data["Close"].rolling(50).mean()
-data["SMA200"] = data["Close"].rolling(200).mean()
+	# period param = period you want + 200d
+	data = yf.Ticker(ticker).history(period="452d").dropna()
 
-# EMA
-data["EMA10"] = data["Close"].ewm(span=10, adjust=False).mean()
-data["EMA20"] = data["Close"].ewm(span=20, adjust=False).mean()
-data["EMA50"] = data["Close"].ewm(span=50, adjust=False).mean()
-data["EMA200"] = data["Close"].ewm(span=200, adjust=False).mean()
+	# SMA
+	data["SMA10"] = data["Close"].rolling(10).mean()
+	data["SMA20"] = data["Close"].rolling(20).mean()
+	data["SMA50"] = data["Close"].rolling(50).mean()
+	data["SMA200"] = data["Close"].rolling(200).mean()
 
-# RSI
-data["RSI"] = abstract.RSI(data, timeperiod=14, price='Close')
+	# EMA
+	data["EMA10"] = data["Close"].ewm(span=10, adjust=False).mean()
+	data["EMA20"] = data["Close"].ewm(span=20, adjust=False).mean()
+	data["EMA50"] = data["Close"].ewm(span=50, adjust=False).mean()
+	data["EMA200"] = data["Close"].ewm(span=200, adjust=False).mean()
 
-# MACD
-returned_macd = abstract.MACDFIX(data, price='Close')
-data["MACD"] = returned_macd["macd"]
-data["MACDSignal"] = returned_macd["macdsignal"]
-data["MACDHist"] = returned_macd["macdhist"]
+	# RSI
+	data["RSI"] = abstract.RSI(data, timeperiod=14, price='Close')
 
-# Bollinger Bands (organized as lower, upper, middle)
-returned_bands = abstract.BBANDS(data, price='Close')
-data["LOWERBAND"] = returned_bands["lowerband"]
-data["MIDDLEBAND"] = returned_bands["middleband"]
-data["UPPERBAND"] = returned_bands["upperband"]
+	# MACD
+	returned_macd = abstract.MACDFIX(data, price='Close')
+	data["MACD"] = returned_macd["macd"]
+	data["MACDSignal"] = returned_macd["macdsignal"]
+	data["MACDHist"] = returned_macd["macdhist"]
 
-# Pivot Point + Support and Resistance (organized from lowest level to highest level)
-data["Pivot"] = (data["High"] + data["Low"] + data["Close"])/3
-support, resistance = [], []
-for i in range(len(data)):
-	support.append([
-		2*data["Pivot"] - data["High"],
-		data["Pivot"] - (data["High"] - data["Low"]),
-		data["Low"] - 2*(data["High"] - data["Pivot"])
-	])
-	resistance.append([
-		2*data["Pivot"] - data["Low"],
-		data["Pivot"] + (data["High"] - data["Low"]),
-		data["High"] + 2*(data["Pivot"] - data["Low"])
-	])
+	# Bollinger Bands (organized as lower, upper, middle)
+	returned_bands = abstract.BBANDS(data, price='Close')
+	data["LOWERBAND"] = returned_bands["lowerband"]
+	data["MIDDLEBAND"] = returned_bands["middleband"]
+	data["UPPERBAND"] = returned_bands["upperband"]
 
-data["Support"], data["Resistance"] = support, resistance
+	# Pivot Point + Support and Resistance (organized from lowest level to highest level)
+	data["Pivot"] = (data["High"] + data["Low"] + data["Close"])/3
+	support, resistance = [], []
+	for _ in range(len(data)):
+		# support.append([
+		# 	2*data["Pivot"] - data["High"],
+		# 	data["Pivot"] - (data["High"] - data["Low"]),
+		# 	data["Low"] - 2*(data["High"] - data["Pivot"])
+		# ])
+		support.append(2*data["Pivot"] - data["High"])
+		resistance.append(2*data["Pivot"] - data["Low"])
+		# resistance.append([
+		# 	2*data["Pivot"] - data["Low"],
+		# 	data["Pivot"] + (data["High"] - data["Low"]),
+		# 	data["High"] + 2*(data["Pivot"] - data["Low"])
+		# ])
 
-data = data[199:]
+	data["Support"], data["Resistance"] = pd.Series(support), pd.Series(resistance)
+
+	data = data[199:]
+	plt.plot(data["Close"])
+	# plt.plot(data["RSI"])
+	plt.show()
+
+if __name__ == '__main__':
+	while True:
+		ticker = input()
+		if ticker == 'q':
+			break
+		get_data(ticker)
